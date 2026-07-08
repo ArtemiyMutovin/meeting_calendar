@@ -1,0 +1,59 @@
+<% content_for :title, "Встречи" %>
+
+<%
+  prev_date = @view == "week" ? @date - 7 : @date - 1
+  next_date = @view == "week" ? @date + 7 : @date + 1
+  period_label =
+    if @view == "week"
+      monday = @date.beginning_of_week
+      "#{l(monday, format: :short)} — #{l(monday + 6, format: :short)}"
+    else
+      l(@date, format: :long)
+    end
+%>
+
+<div class="page-head">
+  <h1>Расписание встреч</h1>
+</div>
+
+<div class="toolbar">
+  <span class="seg">
+    <%= link_to "День", meetings_path(view: "day", date: @date), class: ("is-active" if @view == "day") %>
+    <%= link_to "Неделя", meetings_path(view: "week", date: @date), class: ("is-active" if @view == "week") %>
+  </span>
+
+  <span class="toolbar__spacer"></span>
+
+  <%= link_to "←", meetings_path(view: @view, date: prev_date), class: "btn btn--sm" %>
+  <strong style="min-width:220px;text-align:center;display:inline-block;"><%= period_label %></strong>
+  <%= link_to "→", meetings_path(view: @view, date: next_date), class: "btn btn--sm" %>
+  <%= link_to "Сегодня", meetings_path(view: @view, date: Date.current), class: "btn btn--sm" %>
+</div>
+
+<% if @meetings.empty? %>
+  <div class="card empty">На выбранный период встреч нет.</div>
+<% else %>
+  <% @meetings.group_by { |m| m.starts_at.to_date }.each do |day, meetings| %>
+    <% if @view == "week" %>
+      <div class="day-group__label"><%= l(day, format: :long) %></div>
+    <% end %>
+
+    <% meetings.each do |meeting| %>
+      <div class="card">
+        <div class="meeting">
+          <div class="meeting__time">
+            <%= meeting.starts_at.strftime("%H:%M") %>–<%= meeting.ends_at.strftime("%H:%M") %>
+          </div>
+          <div class="meeting__body">
+            <div class="meeting__title">
+              <%= link_to meeting.title, meeting, style: "text-decoration:none;color:inherit;" %>
+            </div>
+            <div class="meeting__people">
+              <%= meeting.employees.map(&:name).join(", ") %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

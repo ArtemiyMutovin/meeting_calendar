@@ -1,0 +1,50 @@
+<% content_for :title, "Сотрудники" %>
+
+<div class="page-head">
+  <h1>Сотрудники</h1>
+</div>
+
+<div class="card">
+  <h3 class="card__title">Добавить сотрудника</h3>
+  <%= form_with model: @employee, url: employees_path, local: true, class: "inline-form" do |f| %>
+    <div class="form-row">
+      <%= f.label :name, "Имя" %>
+      <%= f.text_field :name, placeholder: "Иван Иванов" %>
+    </div>
+    <div class="form-row">
+      <%= f.label :email, "Email (необязательно)" %>
+      <%= f.email_field :email, placeholder: "ivan@company.ru" %>
+    </div>
+    <%= f.submit "Добавить", class: "btn btn--primary" %>
+  <% end %>
+</div>
+
+<div class="card">
+  <% if @employees.empty? %>
+    <div class="empty">Пока нет сотрудников.</div>
+  <% else %>
+    <table class="list">
+      <thead>
+        <tr><th>Имя</th><th>Email</th><th>Встреч</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% @employees.each do |emp| %>
+          <% count = emp.meetings.count %>
+          <tr>
+            <td><%= emp.name %></td>
+            <td><%= emp.email.presence || "—" %></td>
+            <td><%= count %></td>
+            <td style="text-align:right;">
+              <%= button_to "Удалить", emp, method: :delete,
+                    class: "btn btn--danger btn--sm",
+                    form: { style: "display:inline;" },
+                    data: { turbo_confirm: count.positive? ?
+                      "У сотрудника #{count} встреч(и) — он будет исключён из них. Удалить?" :
+                      "Удалить сотрудника «#{emp.name}»?" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

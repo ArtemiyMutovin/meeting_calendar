@@ -1,0 +1,72 @@
+<% content_for :title, "Новая встреча" %>
+
+<div class="page-head">
+  <h1>Новая встреча</h1>
+  <%= link_to "← К расписанию", meetings_path, class: "btn btn--sm" %>
+</div>
+
+<% if @employees.size < 2 %>
+  <div class="card empty">
+    Чтобы создать встречу, нужно минимум два сотрудника.<br>
+    <%= link_to "Добавить сотрудников →", employees_path, class: "btn btn--primary", style: "margin-top:12px;" %>
+  </div>
+<% else %>
+  <div class="card">
+    <%= form_with model: @meeting, local: true do |f| %>
+      <% if @meeting.errors.any? %>
+        <div class="errors">
+          <strong>Встречу нельзя создать:</strong>
+          <ul>
+            <% @meeting.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-row">
+        <%= f.label :title, "Тема встречи" %>
+        <%= f.text_field :title, placeholder: "Например: Обсуждение спринта", autofocus: true %>
+      </div>
+
+      <% hours = (0..23).map { |h| [format("%02d", h), h] } %>
+      <% minutes = (0..59).map { |m| [format("%02d", m), m] } %>
+
+      <div class="form-row">
+        <%= label_tag "meeting_on_date", "Дата" %>
+        <%= date_field_tag "meeting[on_date]", @on_date, id: "meeting_on_date" %>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-row">
+          <label>Начало</label>
+          <div class="time-select">
+            <%= custom_select "meeting[start_hour]", hours, @start_hour %>
+            <span>:</span>
+            <%= custom_select "meeting[start_min]", minutes, @start_min %>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Окончание</label>
+          <div class="time-select">
+            <%= custom_select "meeting[end_hour]", hours, @end_hour %>
+            <span>:</span>
+            <%= custom_select "meeting[end_min]", minutes, @end_min %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Участники</label>
+        <div class="checklist">
+          <%= f.collection_check_boxes :employee_ids, @employees, :id, :name do |b| %>
+            <%= b.label { safe_join([b.check_box, b.text]) } %>
+          <% end %>
+        </div>
+        <div class="hint">Слот займётся у всех выбранных участников. Отметьте минимум двоих.</div>
+      </div>
+
+      <%= f.submit "Создать встречу", class: "btn btn--primary" %>
+    <% end %>
+  </div>
+<% end %>

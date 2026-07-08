@@ -1,0 +1,26 @@
+<% content_for :title, @meeting.title %>
+
+<div class="page-head">
+  <h1><%= @meeting.title %></h1>
+  <%= link_to "← К расписанию", meetings_path, class: "btn btn--sm" %>
+</div>
+
+<div class="card">
+  <p style="margin-top:0;">
+    <strong>Когда:</strong>
+    <%= l(@meeting.starts_at.to_date, format: :long) %>,
+    <%= @meeting.starts_at.strftime("%H:%M") %>–<%= @meeting.ends_at.strftime("%H:%M") %>
+  </p>
+
+  <p><strong>Участники:</strong></p>
+  <p>
+    <% @meeting.employees.each do |emp| %>
+      <span class="tag"><%= emp.name %></span>
+    <% end %>
+  </p>
+
+  <%= button_to "Удалить встречу", @meeting, method: :delete,
+        class: "btn btn--danger btn--sm",
+        form: { style: "display:inline;" },
+        data: { turbo_confirm: "Удалить эту встречу?" } %>
+</div>
